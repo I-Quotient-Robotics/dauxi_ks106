@@ -72,6 +72,7 @@ int DX::Ks106_Uart::WriteDetect() {
   uint8_t command_model1[5] = {0x30,0x32,0x34,0x36,0x37};
   uint8_t command,write;
   const uint8_t* cmd = &command;
+  //ser_.flushInput();
   //write address
   command = add_;
   write = ser_.write(cmd,1);
@@ -86,7 +87,6 @@ int DX::Ks106_Uart::WriteDetect() {
   while(ros::Time::now().toSec()-t1<0.001){}
   //write detect command
   command = command_model1[2] + 0x08 * ks106_con_;
-  ser_.flushInput();
   write += ser_.write(cmd,1);
   return 0;
 }
@@ -100,16 +100,14 @@ bool DX::Ks106_Uart::ReadAndCheck() {
    //read the back data
   while(ser_.available()<2) {
     //wait 100ms without data back,the sensor is dead
-    if (ros::Time::now().toSec()-t1>0.100)
-    {
+    if (ros::Time::now().toSec()-t1>0.100){
       ROS_ERROR("The sensor was dead, please power the sensor.");
       return false;
     }
   }
   ser_.read(UartData_,ser_.available());
   //back data 0xeeee, check the sensor power.
-  if (UartData_[0]==0xee && UartData_[1]==0xee)
-  {  
+  if (UartData_[0]==0xee && UartData_[1]==0xee) {  
     UartData_.erase(UartData_.begin(),UartData_.begin()+UartData_.size());
     ROS_ERROR("The sensor might lose power,please check the power.");
     return false;
@@ -124,14 +122,13 @@ bool DX::Ks106_Uart::ReadAndCheck() {
 
 //publish the back data with Range mseeage
 int DX::Ks106_Uart::PubDistance() {
-  if (distance_<=0 || distance_>=2.5)
-  {
+  if (distance_<=0 || distance_>=2.5) {
     ROS_INFO("Dangerous");
     return -1;
   }
   sensor_msgs::Range ran;
   ran.header.stamp = ros::Time::now();
-  switch(ks106_con_){
+  switch(ks106_con_) {
     case 0:
     ran.header.frame_id = frame_id1;
     break;
@@ -172,11 +169,9 @@ int DX::Ks106_Uart::WriteCommand() {
   uint8_t command2;
   const uint8_t* cmd2 = &command2;
   ROS_INFO("Ready to change the model.");
-  for (int i = 0; i < 4; i++)
-  {
+  for (int i = 0; i < 4; i++) {
     command_line2[2] = command_model2[i];
-    for (int j = 0; j < 3; j++)
-    {
+    for (int j = 0; j < 3; j++) {
       command2 = command_line2[j];
       ser_.write(cmd2,1);
       //delay 1ms
@@ -190,9 +185,3 @@ int DX::Ks106_Uart::WriteCommand() {
   return 0;
 }
 
-
-/*******************************************************
-逐步增加launch文件参数和自检信息的比对,然后增加程序对参数的修改部分
-不足:依然要保证ros节点先运行再给设备上电的顺序不能乱
-若想先给设备上电再运行节点,则要注释掉主程序里面的关于ks106初始化以及对比设置等函数
-********************************************************/
