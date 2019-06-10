@@ -135,8 +135,8 @@ include_directories(
 ## The recommended prefix ensures that target names across packages don't collide
 # add_executable(${PROJECT_NAME}_node src/iqr_ks106_uart_node.cpp)
 add_executable(ks106_uart_node
- src/Ks106Uart.cpp
- src/Ks106Uart_bringup.cpp
+ src/ks106_uart.cpp
+ src/ks106_uart_node.cpp
  )
 
 ## Rename C++ executable without prefix

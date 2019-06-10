@@ -10,8 +10,8 @@
 #include "std_msgs/Empty.h"
 #include "sensor_msgs/Range.h"
 
-namespace DX {
-  class Ks106_Uart {
+namespace iqr {
+  class Ks106Uart {
   private:
     int ks106_con_,freq_;
     float distance_;
@@ -24,14 +24,14 @@ namespace DX {
     std::string topic_pub_;
     ros::Publisher ks106_pub_;
   public:
-    Ks106_Uart(ros::NodeHandle&);
-    ~Ks106_Uart();
+    Ks106Uart(ros::NodeHandle&);
+    ~Ks106Uart();
     
     bool UartInit();
     bool Ks106Init();
+    bool WriteData(uint8_t, double);
     int WriteDetect();
     bool ReadAndCheck();
-    //int ReadDistance();
     int PubDistance();
     int WriteCommand();
     int Frequency();
