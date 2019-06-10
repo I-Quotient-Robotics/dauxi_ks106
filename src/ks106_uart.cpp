@@ -119,18 +119,24 @@ bool iqr::Ks106Uart::ReadAndCheck() {
       distance_ = (short(UartData_[0]<< 8 | UartData_[1])) * 0.001;
       //ROS_INFO("UartData H:%02x UartData L:%02x ks106_us%d:%f",UartData_[0], UartData_[1], ks106_con_+1, distance_);
       UartData_.erase(UartData_.begin(),UartData_.begin()+2);
+      // return true;
+
     }
     else
       return false;
   }
   catch(serial::SerialException& e) {
-    while(UartInit() == false)
-      sleep(1);          
-    }
+    while(UartInit() == false) {
+      PubDistance(false);
+      sleep(1);
+    }          
+  }
   catch(serial::IOException& e) {
-    while(UartInit() == false)
+    while(UartInit() == false) {
+      PubDistance(false);
       sleep(1);
     }
+  }
   return true;
 }
    
