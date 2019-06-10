@@ -134,9 +134,9 @@ include_directories(
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
 # add_executable(${PROJECT_NAME}_node src/iqr_ks106_uart_node.cpp)
-add_executable(ks106_uart_node
- src/ks106_uart.cpp
- src/ks106_uart_node.cpp
+add_executable(dauxi_ks106_node
+ src/dauxi_ks106.cpp
+ src/dauxi_ks106_node.cpp
  )
 
 ## Rename C++ executable without prefix
@@ -148,7 +148,7 @@ add_executable(ks106_uart_node
 ## Add cmake target dependencies of the executable
 ## same as for the library above
 # add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-add_dependencies(ks106_uart_node
+add_dependencies(dauxi_ks106_node
 ${catkin_EXPORTED_TARGETS}
 )
 
@@ -156,7 +156,7 @@ ${catkin_EXPORTED_TARGETS}
 # target_link_libraries(${PROJECT_NAME}_node
 #   ${catkin_LIBRARIES}
 # )
-target_link_libraries(ks106_uart_node
+target_link_libraries(dauxi_ks106_node
   ${catkin_LIBRARIES}
 )
 

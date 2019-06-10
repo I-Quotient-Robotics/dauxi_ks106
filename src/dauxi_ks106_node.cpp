@@ -1,5 +1,5 @@
 #include "ros/ros.h"
-#include "ks106_uart.h"
+#include "dauxi_ks106.h"
 
 int main(int argc,char** argv) {
 
@@ -9,9 +9,7 @@ int main(int argc,char** argv) {
   while(ks106.UartInit() == false) {
     sleep(1);          //declare the uart port
   }
-  if(!ks106.ReadAndCheck())
-    ks106.Ks106Init();
-  // ks106.WriteCommand();
+  //add check code ,set ks106 with launch setting
   ros::Rate loop_rate(ks106.Frequency());
   while(ros::ok()) {
     ks106.Ks106Run();

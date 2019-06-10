@@ -1,4 +1,4 @@
-#include "ks106_uart.h"
+#include "dauxi_ks106.h"
 
 //init class:Ks106_Uart
 IQR::Ks106Uart::Ks106Uart(ros::NodeHandle& nh) {
@@ -6,15 +6,19 @@ IQR::Ks106Uart::Ks106Uart(ros::NodeHandle& nh) {
   add_ = 0xe8;
   reg_ = 0x02;
   ks106_con_ = 0;
-  nh.param("frequency", freq_, 20);
+  nodename_ = ros::this_node::getName();
+  nh.param("frequency", freq_, 10);
+  if (freq_>12 || freq_<=0) {
+    freq_ = 10;
+  }
   nh.param("baudrate", baudrate_, 9600);
-  nh.param("detect_model", detect_model_, 2);
-  nh.param<std::string>("port", port_, "/dev/ks106_link");
+  // nh.param("detect_model", detect_model_, 2);
+  nh.param<std::string>("port", port_, "/dev/dauxi_ks106");
   nh.param<std::string>("us1_frame_id", frame_id1_, "ks106_us1");
   nh.param<std::string>("us2_frame_id", frame_id2_, "ks106_us2");
   nh.param<std::string>("us3_frame_id", frame_id3_, "ks106_us3");
   nh.param<std::string>("us4_frame_id", frame_id4_, "ks106_us4");
-  nh.param<std::string>("ks106_pub_topic", topic_pub_, "ks106_uart");
+  nh.param<std::string>("topic", topic_pub_, "us");
   ks106_pub_ = nh.advertise<sensor_msgs::Range>(topic_pub_,10);
 }
 
@@ -33,11 +37,11 @@ bool IQR::Ks106Uart::UartInit() {
     ser_.open();                           // try to open the port
   }
   catch(serial::IOException& e) {
-    ROS_ERROR_STREAM(ros::this_node::getName() << ": Unable to open port. Please try again.");
+    ROS_ERROR_STREAM(nodename_ << ": Unable to open port. Please try again.");
     return false;
   }
   if(ser_.isOpen()) {
-    ROS_INFO_STREAM(ros::this_node::getName() << ": The port initialize succeed.");
+    ROS_INFO_STREAM(nodename_ << ": The port initialize succeed.");
     ser_.flushInput();
     return true;
   }
@@ -57,7 +61,7 @@ bool IQR::Ks106Uart::Ks106Init() {
   }
   ROS_INFO("size:%ld",UartData_.size());
 **************************************************************/
-  ROS_INFO_STREAM(ros::this_node::getName() << ": The ks106 is working.");
+  ROS_INFO_STREAM(nodename_ << ": The ks106 is working.");
   sleep(5); 
   ser_.flushInput();
   UartData_.erase(UartData_.begin(),UartData_.begin()+count); 
@@ -86,19 +90,19 @@ int IQR::Ks106Uart::WriteDetect() {
   ser_.flushInput();
   WriteData(add_, 0.001);
   WriteData(reg_, 0.001);
-  WriteData(detect_cmd_model1[detect_model_] + 0x08 * ks106_con_, 0.0);
+  WriteData(detect_cmd_model1[2] + 0x08 * ks106_con_, 0.0);
   t = ros::Time::now();
   t1 = t.toSec();
   while(ser_.available()<2) {
     if (ros::Time::now().toSec()-t1>0.100) {                 //wait 100ms without data back,the sensor is dead
-      ROS_ERROR_STREAM(ros::this_node::getName() << ": The sensor was dead, please power the sensor.");
+      ROS_ERROR_STREAM(nodename_ << ": The sensor was dead, please power the sensor.");
       return -1;
     }
   }
   ser_.read(UartData_,ser_.available());
   if (UartData_[0]==0xee && UartData_[1]==0xee) {            //back data 0xeeee, check the sensor power.
     UartData_.erase(UartData_.begin(),UartData_.begin()+UartData_.size());
-    ROS_ERROR_STREAM(ros::this_node::getName() << ": The sensor might lose power,please check the power.");
+    ROS_ERROR_STREAM(nodename_ << ": The sensor might lose power,please check the power.");
     return -2;
   }
   return 0;
@@ -129,7 +133,7 @@ bool IQR::Ks106Uart::ReadAndCheck() {
   }
   return true;
 }
-   
+
 //publish the back data with Range mseeage
 int IQR::Ks106Uart::PubDistance(bool flag) {
   sensor_msgs::Range ran;
@@ -176,7 +180,7 @@ int IQR::Ks106Uart::PubDistance(bool flag) {
 }
 
 int IQR::Ks106Uart::Frequency() {
-  return freq_;
+  return 4*freq_;
 }
 
 int IQR::Ks106Uart::Ks106Run() {
@@ -196,7 +200,7 @@ int IQR::Ks106Uart::WriteCommand() {
   double t1;
   uint8_t command_line2[3] = {0xe8,0x02,0x9c};
   command_line2[0] = add_;
-  ROS_INFO_STREAM(ros::this_node::getName() << ": Ready to change the model.");
+  ROS_INFO_STREAM(nodename_ << ": Ready to change the model.");
   for (int i = 0; i < 4; i++) {
     command_line2[2] = command_model2[i];
     for (int j = 0; j < 3; j++) {

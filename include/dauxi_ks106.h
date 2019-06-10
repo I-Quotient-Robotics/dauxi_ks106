@@ -17,7 +17,8 @@ namespace IQR {
     uint8_t add_,reg_;
     int ks106_con_,freq_,detect_model_;
     
-    std::string port_,frame_id1_,frame_id2_,frame_id3_,frame_id4_;
+    std::string port_,nodename_;
+    std::string frame_id1_,frame_id2_,frame_id3_,frame_id4_;
     serial::Serial ser_;
     int baudrate_,index_;
     std::vector<uint8_t> UartData_;
