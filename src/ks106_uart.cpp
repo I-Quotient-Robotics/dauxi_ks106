@@ -135,7 +135,7 @@ bool iqr::Ks106Uart::ReadAndCheck() {
 }
    
 //publish the back data with Range mseeage
-int iqr::Ks106Uart::PubDistance() {
+int iqr::Ks106Uart::PubDistance(bool flag) {
   
   sensor_msgs::Range ran;
   ran.header.stamp = ros::Time::now();
@@ -157,7 +157,7 @@ int iqr::Ks106Uart::PubDistance() {
   ran.field_of_view = 115.0 / 180.0 * 3.14159;
   ran.min_range = 0.14;
   ran.max_range = 2.50;
-  if (distance_<=0 || distance_>=2.5) {
+  if (distance_<=0 || distance_>=2.5 || flag == false) {
     ROS_INFO("Dangerous");
     ran.range = -1.0;
   }

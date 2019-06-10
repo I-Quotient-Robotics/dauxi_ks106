@@ -32,7 +32,7 @@ namespace iqr {
     bool WriteData(uint8_t, double);
     int WriteDetect();
     bool ReadAndCheck();
-    int PubDistance();
+    int PubDistance(bool);
     int WriteCommand();
     int Frequency();
   };

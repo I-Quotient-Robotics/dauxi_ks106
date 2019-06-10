@@ -12,16 +12,16 @@ int main(int argc,char** argv) {
   
   if(!ks106.ReadAndCheck())
     ks106.Ks106Init();
-  ks106.WriteCommand();
+  // ks106.WriteCommand();
   ros::Rate loop_rate(ks106.Frequency());
   while(ros::ok()) {
     // try {
-      
-      if(!ks106.ReadAndCheck()) {
+      bool flag = ks106.ReadAndCheck();
+      ks106.PubDistance(flag);
+      if(!flag) {
         ks106.Ks106Init();
         continue;
       }
-      ks106.PubDistance();
       loop_rate.sleep();
     // }
     // catch(serial::SerialException& e) {
