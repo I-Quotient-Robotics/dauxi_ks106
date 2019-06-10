@@ -112,7 +112,7 @@ bool IQR::Ks106Uart::ReadAndCheck() {
 
   try {
     if (WriteDetect() == 0) {
-      distance_ = (short(UartData_[0]<< 8 | UartData_[1])) * 0.001;
+      distance_ = (short(UartData_[0]<< 8 | UartData_[1]));
       //ROS_INFO("UartData H:%02x UartData L:%02x ks106_us%d:%f",UartData_[0], UartData_[1], ks106_con_+1, distance_);
       UartData_.erase(UartData_.begin(),UartData_.begin()+2);
     }
@@ -154,7 +154,7 @@ int IQR::Ks106Uart::PubDistance(bool flag) {
     ks106_pub_.publish(ran);
     return 0;
   }
-  if (distance_<=0 || distance_>=3 ) {
+  if (distance_<=0) {
     ran.range = -1.0;
   }
   ran.range = distance_;
