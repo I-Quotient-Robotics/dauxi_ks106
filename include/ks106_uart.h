@@ -10,14 +10,14 @@
 #include "std_msgs/Empty.h"
 #include "sensor_msgs/Range.h"
 
-namespace iqr {
+namespace IQR {
   class Ks106Uart {
   private:
-    int ks106_con_,freq_;
     float distance_;
     uint8_t add_,reg_;
+    int ks106_con_,freq_,detect_model_;
     
-    std::string port_,frame_id1,frame_id2,frame_id3,frame_id4;
+    std::string port_,frame_id1_,frame_id2_,frame_id3_,frame_id4_;
     serial::Serial ser_;
     int baudrate_,index_;
     std::vector<uint8_t> UartData_;
@@ -29,6 +29,7 @@ namespace iqr {
     
     bool UartInit();
     bool Ks106Init();
+    int Ks106Run();
     bool WriteData(uint8_t, double);
     int WriteDetect();
     bool ReadAndCheck();
@@ -36,6 +37,8 @@ namespace iqr {
     int WriteCommand();
     int Frequency();
   };
+  const uint8_t detect_cmd_model1[5] = {0x30,0x32,0x34,0x36,0x37};
+  const uint8_t command_model2[4] = {0x9c,0x95,0x98,0x75};
 }
 
 #endif

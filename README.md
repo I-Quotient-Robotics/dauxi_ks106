@@ -16,9 +16,11 @@ When the distance is out of detect, range will be valuated -1.
 Some parameters could be changed in launch file.  
 1. ks106_pub_topic:Publish in ROS used this parameter as topic. Default:/ks106_uart/Ks106_uart  
 2. port:The port used to communicate with ks106. It has been renamed in rules.d and can't change.  
-3. baudrate:Baudrate. Default:9600.  
-4. frequency:The frequency that ks106 return data. Default:40HZ.  
-5. us1_frame_id:The frame_id in the message. Corresponding the detector con1.Default:ks106_us1.  
+3. baudrate:Baudrate. Default:9600.
+4. detect_model:ks106 has 5 detect models. Default:2.  
+  ![ks106_detect_model](https://img-blog.csdnimg.cn/2019061016315398.png)
+5. frequency:The frequency that ks106 return data. Default:40HZ.  
+6. us1_frame_id:The frame_id in the message. Corresponding the detector con1.Default:ks106_us1.  
 
 ## Device setting
 Ks106 connected to PC with USB serial port module. Make sure the 485-A / 485-B connected with corresponding port. 
@@ -41,9 +43,9 @@ git clone https://github.com/bigMH/ks106_uart.git
 rosdep check iqr_ks106_uart
 rosdep install iqr_ks106_uart --ignore-src
 ```
-3. Turn to the package, copy ks106_port.rules to /etc/udev/rules.d/  
+3. Turn to the package, copy 55-ks106.rules to /etc/udev/rules.d/  
 ```
-sudo cp ks106_port.rules /etc/udev/rules.d/
+sudo cp 55-ks106.rules /etc/udev/rules.d/
 ```
 4. Run the launch.Suggest: first run the launch file and then power the ks106.  
 ```
@@ -53,4 +55,5 @@ roslaunch ks106_uart Ks106_Link_bringup.launch
 ## Deficiency
 1. Ks106 just work on "Single sending Single receiving" model.  
 2. Detection range is 0.14m to 2.5m.Can't change.  
-3. The sensor address and other settings can't be changed. Maybe it can be change in future.  
+3. The sensor address and other settings can't be changed. Maybe it can be change in future.
+4. When the sensor is too close to object(little than 14cm), it will return a range value. Althought it looks like a nomal value, maybe it is dangerous.   

@@ -2,6 +2,7 @@
   <node pkg = "iqr_ks106_uart" type = "ks106_uart_node" name = "ks106_uart" output = "screen">
     <param name = "ks106_pub_topic" type = "string" value = "Ks106_uart"/>
     <param name = "port" type = "string" value = "/dev/ks106_link"/>
+    <param name = "detect_model" type = "int" value = "0"/>
     <param name = "baudrate" type = "int" value = "9600"/>
     <param name = "frequency" type = "int" value = "40"/>
     <param name = "us1_frame_id" type = "string" value = "ks106_us1"/>
