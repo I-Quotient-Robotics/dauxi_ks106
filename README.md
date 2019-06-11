@@ -14,7 +14,7 @@ When the sensor out of power, range will be valuated -1.
 
 ## Parameters
 Some parameters could be changed in launch file.  
-1. ks106_pub_topic:Publish in ROS used this parameter as topic. Default:/dauxi_ks106/us  
+1. topic:Publish in ROS used this parameter as topic. Default:/dauxi_ks106/us  
 2. port:The port used to communicate with ks106. It has been renamed in rules.d and can't change.  
 3. baudrate:Baudrate. Default:9600.
 4. frequency:The frequency that ks106 return data. Default:10HZ.  
