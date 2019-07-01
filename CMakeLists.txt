@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(iqr_ks106_uart)
+project(dauxi_ks106)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
 # add_compile_options(-std=c++11)
@@ -134,7 +134,7 @@ include_directories(
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
 # add_executable(${PROJECT_NAME}_node src/iqr_ks106_uart_node.cpp)
-add_executable(dauxi_ks106_node
+add_executable(${PROJECT_NAME}_node
  src/dauxi_ks106.cpp
  src/dauxi_ks106_node.cpp
  )
@@ -147,16 +147,13 @@ add_executable(dauxi_ks106_node
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above
-# add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-add_dependencies(dauxi_ks106_node
-${catkin_EXPORTED_TARGETS}
-)
+add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
 # target_link_libraries(${PROJECT_NAME}_node
 #   ${catkin_LIBRARIES}
 # )
-target_link_libraries(dauxi_ks106_node
+target_link_libraries(${PROJECT_NAME}_node
   ${catkin_LIBRARIES}
 )
 
