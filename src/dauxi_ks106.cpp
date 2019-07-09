@@ -15,13 +15,18 @@ IQR::Ks106Uart::Ks106Uart(ros::NodeHandle& nh) {
   }
   nh.param("baudrate", baudrate_, 9600);
   // nh.param("detect_model", detect_model_, 2);
+  nh.param<double>("min_range", min_range_, 0.25);
+  nh.param<double>("max_range", max_range_, 1.50);
   nh.param<std::string>("port", port_, "/dev/dauxi_ks106");
-  nh.param<std::string>("us1_frame_id", frame_id1_, "ks106_us1");
-  nh.param<std::string>("us2_frame_id", frame_id2_, "ks106_us2");
-  nh.param<std::string>("us3_frame_id", frame_id3_, "ks106_us3");
-  nh.param<std::string>("us4_frame_id", frame_id4_, "ks106_us4");
-  nh.param<std::string>("topic", topic_pub_, "us");
-  ks106_pub_ = nh.advertise<sensor_msgs::Range>(topic_pub_,10);
+  nh.param<std::string>("us1_id", us_id_[0], "ks106_us1");
+  nh.param<std::string>("us2_id", us_id_[1], "ks106_us2");
+  nh.param<std::string>("us3_id", us_id_[2], "ks106_us3");
+  nh.param<std::string>("us4_id", us_id_[3], "ks106_us4");
+  // nh.param<std::string>("topic", topic_pub_, "us");
+
+  for(int i=0; i<4; i++) {
+    ks106_pub_[i] = nh.advertise<sensor_msgs::Range>(us_id_[i], 10);
+  }
 }
 
 IQR::Ks106Uart::~Ks106Uart() {
@@ -146,44 +151,33 @@ bool IQR::Ks106Uart::ReadAndCheck() {
 
 //publish the back data with Range mseeage
 int IQR::Ks106Uart::PubDistance(bool flag) {
-  sensor_msgs::Range ran;
-  ran.min_range = 0.14;
-  ran.max_range = 2.50;
-  ran.radiation_type = 0;
-  ran.header.stamp = ros::Time::now();
-  ran.field_of_view = 65.0 / 180.0 * M_PI;
+  sensor_msgs::Range range;
+  range.min_range = min_range_;
+  range.max_range = max_range_;
+  range.radiation_type = 0;
+  range.header.stamp = ros::Time::now();
+  range.field_of_view = 65.0 / 180.0 * M_PI;
+
   if (flag == false) {
-    ran.range = -1.0;
-    ran.header.frame_id = frame_id1_;
-    ks106_pub_.publish(ran);
-    ran.header.frame_id = frame_id2_;
-    ks106_pub_.publish(ran);
-    ran.header.frame_id = frame_id3_;
-    ks106_pub_.publish(ran);
-    ran.header.frame_id = frame_id4_;
-    ks106_pub_.publish(ran);
+    range.range = -1.0;
+
+    for(int i=0; i<4; i++) {
+      range.header.frame_id = us_id_[i]+"_link";
+      ks106_pub_[i].publish(range);
+    }
+
     return 0;
   }
-  if (distance_<=0) {
-    ran.range = -1.0;
+
+  if (distance_>max_range_ || distance_< min_range_) {
+    range.range = -1.0;
   } else {
-    ran.range = distance_;
+    range.range = distance_;
   }
-  switch(ks106_con_) {
-    case 0:
-    ran.header.frame_id = frame_id1_;
-    break;
-    case 1:
-    ran.header.frame_id = frame_id2_;
-    break;
-    case 2:
-    ran.header.frame_id = frame_id3_;
-    break;
-    case 3:
-    ran.header.frame_id = frame_id4_;
-    break;
-  }
-  ks106_pub_.publish(ran);
+
+  range.header.frame_id = us_id_[ks106_con_]+"_link";
+  ks106_pub_[ks106_con_].publish(range);
+
   ks106_con_++;
   if (ks106_con_== 4)
     ks106_con_ = 0;
