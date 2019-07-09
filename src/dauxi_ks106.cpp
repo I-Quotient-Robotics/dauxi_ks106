@@ -1,5 +1,7 @@
 #include "dauxi_ks106.h"
 
+#include <cmath>
+
 //init class:Ks106_Uart
 IQR::Ks106Uart::Ks106Uart(ros::NodeHandle& nh) {
   
@@ -85,6 +87,7 @@ bool IQR::Ks106Uart::WriteData(uint8_t command, double t2) {
 
 //read back data function 
 int IQR::Ks106Uart::WriteDetect() {
+  // ROS_INFO("write_detect");
   ros::Time t;
   double t1;
   ser_.flushInput();
@@ -101,23 +104,30 @@ int IQR::Ks106Uart::WriteDetect() {
   }
   ser_.read(UartData_,ser_.available());
   if (UartData_[0]==0xee && UartData_[1]==0xee) {            //back data 0xeeee, check the sensor power.
-    UartData_.erase(UartData_.begin(),UartData_.begin()+UartData_.size());
-    ROS_ERROR_STREAM(nodename_ << ": The sensor might lose power,please check the power.");
-    return -2;
+    // UartData_.erase(UartData_.begin(),UartData_.begin()+UartData_.size());
+    ROS_WARN("Get 0xee data, pass");
+    // ROS_ERROR_STREAM(nodename_ << ": The sensor might lose power,please check the power.");
+    return -3;
   }
   return 0;
 }
 
 bool IQR::Ks106Uart::ReadAndCheck() {
+  // ROS_INFO("Read");
 
   try {
-    if (WriteDetect() == 0) {
-      distance_ = (short(UartData_[0]<< 8 | UartData_[1]));
-      //ROS_INFO("UartData H:%02x UartData L:%02x ks106_us%d:%f",UartData_[0], UartData_[1], ks106_con_+1, distance_);
+    int write_flag = WriteDetect();
+    if (write_flag == 0) {
+      distance_ = (short(UartData_[0]<< 8 | UartData_[1])) / 1000.0;
       UartData_.erase(UartData_.begin(),UartData_.begin()+2);
-    }
-    else
+      //ROS_INFO("UartData H:%02x UartData L:%02x ks106_us%d:%f",UartData_[0], UartData_[1], ks106_con_+1, distance_);
+    } else if(write_flag == -3) {
+      // ROS_INFO("ee exec");
+      distance_ = -1;
+      UartData_.erase(UartData_.begin(),UartData_.begin()+2);
+    } else {
       return false;
+    }
   }
   catch(serial::SerialException& e) {
     PubDistance(false);
@@ -141,7 +151,7 @@ int IQR::Ks106Uart::PubDistance(bool flag) {
   ran.max_range = 2.50;
   ran.radiation_type = 0;
   ran.header.stamp = ros::Time::now();
-  ran.field_of_view = 115.0 / 180.0 * 3.14159;
+  ran.field_of_view = 65.0 / 180.0 * M_PI;
   if (flag == false) {
     ran.range = -1.0;
     ran.header.frame_id = frame_id1_;
@@ -156,8 +166,9 @@ int IQR::Ks106Uart::PubDistance(bool flag) {
   }
   if (distance_<=0) {
     ran.range = -1.0;
+  } else {
+    ran.range = distance_;
   }
-  ran.range = distance_;
   switch(ks106_con_) {
     case 0:
     ran.header.frame_id = frame_id1_;
